@@ -1,0 +1,31 @@
+name: Build Pithos Xbox UWP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC and Windows SDK
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build Xbox UWP Package
+        run: |
+          if (Test-Path "xbox\build.cmd") {
+            cmd /c xbox\build.cmd
+          } else {
+            Write-Host "Files inside xbox folder:"
+            Get-ChildItem -Path "xbox" -Recurse -Name
+            exit 1
+          }
+
+      - name: Upload Xbox Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: pithos-xbox-package
+          path: build-xbox/
+          
