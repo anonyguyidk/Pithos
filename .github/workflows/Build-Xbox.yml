@@ -1,0 +1,32 @@
+name: Build Pithos Xbox UWP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC and Windows SDK
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Find and Run Xbox Build Script
+        run: |
+          $script = Get-ChildItem -Recurse -Filter "*xbox*.cmd" | Select-Object -First 1
+          if ($script) {
+            Write-Host "Running $($script.FullName)"
+            cmd /c "`"$($script.FullName)`""
+          } else {
+            Write-Error "Could not find Xbox build script. Files in repo:"
+            Get-ChildItem -Recurse -Name
+          }
+
+      - name: Upload Xbox Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: pithos-xbox-package
+          path: build-xbox/
+          
